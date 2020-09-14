@@ -1,29 +1,37 @@
 <template>
-  <div
-    class="container"
-    ref="container"
-  >
-    <div class="tools">
-      <input
-        type="file"
-        @change="handleLoadImage"
-      />
-      <button @click="handleRotate(90)"><i class="el-icon-refresh-right"></i></button>
-      <button @click="handleRotate(-90)"><i class="el-icon-refresh-left"></i></button>
-      <button @click="handleCircle">圆形</button>
-      <button @click="handleClip">裁剪</button>
-      <button @click="handleTest">save</button>
-    </div>
+  <div>
     <div
-      class="content"
-      ref="content"
+      class="container"
+      ref="container"
     >
+      <div class="tools">
+        <input
+          type="file"
+          @change="handleLoadImage"
+        />
+        <button @click="handleRotate(90)"><i class="el-icon-refresh-right"></i></button>
+        <button @click="handleRotate(-90)"><i class="el-icon-refresh-left"></i></button>
+        <button @click="handleCircle">圆形</button>
+        <button @click="handleClip">裁剪</button>
+        <button @click="handleTest">save</button>
+      </div>
       <div
-        id="stage"
-        ref="editArea"
-      ></div>
-    </div>
+        class="content"
+        ref="content"
+      >
+        <div
+          id="stage"
+          ref="editArea"
+        ></div>
+      </div>
 
+    </div>
+    <div id="menu">
+      <div class='box'>
+        <button id="pulse-button">Pulse</button>
+        <button id="delete-button">Delete</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -74,16 +82,31 @@ export default {
       },
       // 圆id
       circleId: '',
+      menuNode: null,
+      currentShape: null,
     };
   },
   created() { },
-  mounted() { },
+  mounted() {
+    this.initEvent()
+  },
   methods: {
+    initEvent() {
+      this.menuNode = document.getElementById('menu')
+      window.addEventListener('click', () => {
+        this.menuNode.style.display = 'none'
+      })
+
+      document.getElementById('delete-button').addEventListener('click', () => {
+        this.currentShape.destroy();
+        this.layer.obj.draw();
+      });
+    },
     handleTest() {
       let stage = this.stage.obj
       let layer = this.layer.obj
       let group = this.group.obj
-      let content = group.toDataURL({mimeType:"image/jpeg", quality : 1, pixelRatio: 2});
+      let content = group.toDataURL({ mimeType: "image/jpeg", quality: 1, pixelRatio: 2 });
       let fileName = '框框'
 
 
@@ -145,7 +168,7 @@ export default {
     // 实例层
     mapToMakeLayer() {
       let { obj: stage } = this.stage
-      let layer = new Konva.Layer({ draggable: true, })
+      let layer = new Konva.Layer({ draggable: true })
       stage.add(layer)
       this.layer.obj = layer
     },
@@ -163,6 +186,7 @@ export default {
       this.group.width = size.width
       this.group.height = size.height
       this.group.obj = group
+
     },
     // 实例图片
     mapToMakeImageShape() {
@@ -257,6 +281,18 @@ export default {
         id: this.circleId,
         draggable: true,
       });
+
+      circle.on("contextmenu", (e) => {
+        e.evt.preventDefault();
+        let { obj: stage } = this.stage
+        this.currentShape = e.target;
+        this.menuNode.style.display = 'initial';
+        var containerRect = stage.container().getBoundingClientRect();
+        this.menuNode.style.top =
+          containerRect.top + stage.getPointerPosition().y + 4 + 'px';
+        this.menuNode.style.left =
+          containerRect.left + stage.getPointerPosition().x + 4 + 'px';
+      })
 
       if (circle) {
         this.group.obj.add(circle)
@@ -502,5 +538,20 @@ export default {
   width: 100%;
   height: calc(100vh - 40px);
   background: rgb(240, 240, 240);
+}
+
+#menu {
+  position: absolute;
+  display: none;
+  background: rgb(196, 196, 196);
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+}
+
+#menu button {
+  padding: 5px 10px;
 }
 </style>
