@@ -12,7 +12,6 @@
         <button @click="handleRotate(90)"><i class="el-icon-refresh-right"></i></button>
         <button @click="handleRotate(-90)"><i class="el-icon-refresh-left"></i></button>
         <button @click="handleCircle">圆形</button>
-        <button @click="handleClip">裁剪</button>
         <button @click="handleTest">save</button>
       </div>
       <div
@@ -26,10 +25,13 @@
       </div>
 
     </div>
-    <div id="menu">
+    <div
+      id="menu"
+      ref="menu"
+    >
       <div class='box'>
-        <button id="pulse-button">Pulse</button>
-        <button id="delete-button">Delete</button>
+        <button>Pulse</button>
+        <button @click="handleDeleteShape">Delete</button>
       </div>
     </div>
   </div>
@@ -45,6 +47,7 @@ export default {
         obj: null,
         width: 0,
         height: 0,
+        scale: 1,
       },
       layer: {
         obj: null,
@@ -66,8 +69,9 @@ export default {
         width: 0,
         height: 0,
       },
-      scale: 1,   // stage 缩放比例
       degrees: 0, // 旋转角度累计
+
+      circleId: '', // 圆id
       clickCircle: false,
       doDrawing: false,
       mousePosition: {
@@ -80,11 +84,9 @@ export default {
         x: 0,
         y: 0,
       },
-      // 圆id
-      circleId: '',
       menuNode: null,
       currentShape: null,
-      resizeTimer: null
+      resizeTimer: null, // 刷新页面定时器
     };
   },
   created() { },
@@ -92,61 +94,17 @@ export default {
     this.initEvent()
   },
   methods: {
+    // 初始化监听事件
     initEvent() {
       this.menuNode = document.getElementById('menu')
       window.addEventListener('click', () => {
         this.menuNode.style.display = 'none'
       })
 
-      // 监听删除事件
-      document.getElementById('delete-button').addEventListener('click', () => {
-        this.currentShape.destroy();
-        this.layer.obj.draw();
-      });
-
       // 监听页面尺寸变化 
       window.addEventListener('resize', this.resize);
     },
-    // 重置大小
-    resize() {
-      if (this.resizeTimer) clearTimeout(this.resizeTimer)
-
-      this.resizeTimer = setTimeout(() => {
-        this.resizeDraw()
-      }, 400);
-    },
-    resizeDraw() {
-      let { offsetWidth, offsetHeight } = this.$refs.content
-      let { obj: stage } = this.stage
-      let { obj: layer } = this.layer
-
-      this.stage.width = offsetWidth
-      this.stage.height = offsetHeight
-
-      stage.width(offsetWidth)
-      stage.height(offsetHeight)
-      stage.scaleX(1)
-      stage.scaleY(1)
-      this.scale = 1
-
-      stage.offsetX(offsetWidth / 2)
-      stage.offsetY(offsetHeight / 2)
-      stage.x(offsetWidth / 2)
-      stage.y(offsetHeight / 2)
-
-      let size = this.resetImageSize(this.degrees)
-      let { Xscale, Yscale, x, y } = size
-
-
-      this.group.obj.scaleX(Xscale)
-      this.group.obj.scaleY(Yscale)
-      layer.x(x)
-      layer.y(y)
-
-
-      stage.draw()
-
-    },
+    // 保存图片
     handleTest() {
       let stage = this.stage.obj
       let layer = this.layer.obj
@@ -204,11 +162,14 @@ export default {
         container: "stage",
         width: offsetWidth,
         height: offsetHeight,
+        scaleX: 1,
+        scaleY: 1,
       });
 
       this.stage.obj = stage
       this.stage.width = offsetWidth
       this.stage.height = offsetHeight
+      this.stage.scale = 1
     },
     // 实例层
     mapToMakeLayer() {
@@ -306,6 +267,7 @@ export default {
     // 画圆
     drawing() {
       let circleId = this.circleId
+      let { scale } = this.stage
       let { startPositionX, startPositionY, endPositionX, endPositionY } = this.mousePosition
 
       if (this.group.obj.find(`#${this.circleId}`)) {
@@ -315,8 +277,8 @@ export default {
       let circle = null
       let radius = Math.sqrt((endPositionX - startPositionX) * (endPositionX - startPositionX) + (endPositionY - startPositionY) * (endPositionY - startPositionY));
       circle = new Konva.Circle({
-        x: this.circlePosition.x / this.scale,
-        y: this.circlePosition.y / this.scale,
+        x: this.circlePosition.x / scale,
+        y: this.circlePosition.y / scale,
         radius: radius,
         stroke: 'red',
         strokeWidth: 1,
@@ -328,15 +290,7 @@ export default {
       });
 
       circle.on("contextmenu", (e) => {
-        e.evt.preventDefault();
-        let { obj: stage } = this.stage
-        this.currentShape = e.target;
-        this.menuNode.style.display = 'initial';
-        var containerRect = stage.container().getBoundingClientRect();
-        this.menuNode.style.top =
-          containerRect.top + stage.getPointerPosition().y + 4 + 'px';
-        this.menuNode.style.left =
-          containerRect.left + stage.getPointerPosition().x + 4 + 'px';
+        this.contextmenu(e)
       })
 
       if (circle) {
@@ -354,39 +308,16 @@ export default {
     // 旋转
     handleRotate(degrees) {
       this.degrees += degrees
-      let layer = this.layer.obj
-
-      let { content } = this.$refs;
-      let { offsetHeight, offsetWidth } = content;
-
-      if (Math.abs(this.degrees) == 360) this.degrees = 0
-
-      let size = this.resetImageSize(this.degrees)
-      let { Xscale, Yscale, x, y } = size
-
-      this.stage.obj.scaleX(1)
-      this.stage.obj.scaleY(1)
-      this.scale = 1
-
-      this.group.obj.scaleX(Xscale)
-      this.group.obj.scaleY(Yscale)
-
-      this.stage.obj.offsetX(offsetWidth / 2)
-      this.stage.obj.offsetY(offsetHeight / 2)
-      this.stage.obj.x(offsetWidth / 2)
-      this.stage.obj.y(offsetHeight / 2)
-
-      layer.x(x)
-      layer.y(y)
-
+      this.setParameters()
       this.stage.obj.rotate(degrees)
       this.stage.obj.draw()
     },
 
     // 重置图片
     resetImageSize(degrees = 0) {
-      let { content } = this.$refs;
-      let { offsetHeight, offsetWidth } = content;
+      if (Math.abs(this.degrees) == 360) this.degrees = 0
+
+      let { offsetHeight, offsetWidth } = this.$refs.content;
       let { width: gWidth, height: gHeight } = this.group
       let { width, height } = this.image
       let x = 0, y = 0
@@ -414,7 +345,6 @@ export default {
 
       }
 
-
       // 赋值 旋转后组的缩放比例
       let Xscale = this.group.Xscale = (width / gWidth) == 'Infinity' ? 1 : width / gWidth
       let Yscale = this.group.Yscale = (width / gWidth) == 'Infinity' ? 1 : width / gWidth
@@ -422,8 +352,6 @@ export default {
 
       this.layer.x = x = (offsetWidth - width) / 2
       this.layer.y = y = (offsetHeight - height) / 2
-
-      console.log(Xscale, Yscale)
 
       return {
         Xscale,
@@ -433,26 +361,6 @@ export default {
         x,
         y
       }
-    },
-
-    handleClip() {
-      //   this.clipGroup = new Konva.Group({
-      //     clip: {
-      //       x: this.mouseFrom.x,
-      //       y: this.mouseFrom.y,
-      //       width: 400,
-      //       height: 300
-      //     },
-      //     stroke: 'white',
-      //     strokeWidth: 2,
-      //     draggable: true,
-      //   })
-
-      //   this.clipGroup.add(this.theImg)
-
-      //   this.layer.add(this.clipGroup)
-      //   this.layer.add(this.clipGroup);
-      //   this.stage.draw()
     },
 
     // mouseDown
@@ -503,19 +411,18 @@ export default {
       scale += event.deltaY * -0.01;
       scale = Math.min(Math.max(.8, scale), 3);
       this.mapToShapeScale(stage, scale);
-      this.scale = scale
 
       layer.x(x)
       layer.y(y)
 
       stage.offsetX(offsetWidth / 2)
       stage.offsetY(offsetHeight / 2)
+      this.stage.scale = scale
 
       stage.x(offsetWidth / 2);
       stage.y(offsetHeight / 2);
 
       stage.batchDraw();
-
     },
 
     // 缩放
@@ -561,7 +468,72 @@ export default {
         this.circlePosition.x = cacheX / Xscale
         this.circlePosition.y = cacheY / Yscale;
       }
-    }
+    },
+
+    // 删除
+    handleDeleteShape() {
+      this.currentShape.destroy();
+      this.layer.obj.draw();
+    },
+
+    // 上下文菜单
+    contextmenu(e) {
+      e.evt.preventDefault();
+      let { obj: stage } = this.stage
+      this.currentShape = e.target;
+      this.menuNode.style.display = 'initial';
+      var containerRect = stage.container().getBoundingClientRect();
+      this.menuNode.style.top =
+        containerRect.top + stage.getPointerPosition().y + 4 + 'px';
+      this.menuNode.style.left =
+        containerRect.left + stage.getPointerPosition().x + 4 + 'px';
+    },
+
+    // 重置大小
+    resize() {
+      if (this.resizeTimer) clearTimeout(this.resizeTimer)
+
+      this.resizeTimer = setTimeout(() => {
+        this.resizeDraw()
+      }, 400);
+    },
+
+    // paramters position
+    setParameters() {
+      let { obj: stage } = this.stage
+      let { obj: layer } = this.layer
+      let { obj: group } = this.group
+      let { offsetWidth, offsetHeight } = this.$refs.content
+      let { Xscale, Yscale, x, y } = this.resetImageSize(this.degrees)
+
+      this.stage.width = offsetWidth
+      this.stage.height = offsetHeight
+      this.stage.scale = 1
+
+
+      stage.width(offsetWidth)
+      stage.height(offsetHeight)
+
+      stage.scaleX(1)
+      stage.scaleY(1)
+
+      stage.offsetX(offsetWidth / 2)
+      stage.offsetY(offsetHeight / 2)
+      stage.x(offsetWidth / 2)
+      stage.y(offsetHeight / 2)
+
+      group.scaleX(Xscale)
+      group.scaleY(Yscale)
+      layer.x(x)
+      layer.y(y)
+
+    },
+    
+    // 重绘
+    resizeDraw() {
+      this.setParameters()
+      this.stage.obj.draw()
+    },
   },
 };
 </script>
