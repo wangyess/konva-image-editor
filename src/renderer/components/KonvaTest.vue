@@ -84,6 +84,7 @@ export default {
       circleId: '',
       menuNode: null,
       currentShape: null,
+      resizeTimer: null
     };
   },
   created() { },
@@ -97,10 +98,53 @@ export default {
         this.menuNode.style.display = 'none'
       })
 
+      // 监听删除事件
       document.getElementById('delete-button').addEventListener('click', () => {
         this.currentShape.destroy();
         this.layer.obj.draw();
       });
+
+      // 监听页面尺寸变化 
+      window.addEventListener('resize', this.resize);
+    },
+    // 重置大小
+    resize() {
+      if (this.resizeTimer) clearTimeout(this.resizeTimer)
+
+      this.resizeTimer = setTimeout(() => {
+        this.resizeDraw()
+      }, 400);
+    },
+    resizeDraw() {
+      let { offsetWidth, offsetHeight } = this.$refs.content
+      let { obj: stage } = this.stage
+      let { obj: layer } = this.layer
+
+      this.stage.width = offsetWidth
+      this.stage.height = offsetHeight
+
+      stage.width(offsetWidth)
+      stage.height(offsetHeight)
+      stage.scaleX(1)
+      stage.scaleY(1)
+
+      stage.offsetX(offsetWidth / 2)
+      stage.offsetY(offsetHeight / 2)
+      stage.x(offsetWidth / 2)
+      stage.y(offsetHeight / 2)
+
+      let size = this.resetImageSize(this.degrees)
+      let { Xscale, Yscale, x, y } = size
+
+
+      this.group.obj.scaleX(Xscale)
+      this.group.obj.scaleY(Yscale)
+      layer.x(x)
+      layer.y(y)
+
+
+      stage.draw()
+
     },
     handleTest() {
       let stage = this.stage.obj
@@ -347,19 +391,27 @@ export default {
       let x = 0, y = 0
 
       if (!(width < offsetWidth && height < offsetHeight)) {
-        if (offsetWidth / offsetHeight <= width / height) { // 横版
+
+        // if (offsetWidth / offsetHeight <= width / height) { // 横版
+        if (1 <= width / height) { // 横版
+          console.log('1')
           if (Math.abs(degrees) == 90 || Math.abs(degrees) == 270) {
+            console.log('1-1')
             height = (offsetHeight * 0.8) * (height / width);
             width = offsetHeight * 0.8;   //以框的高度为标准
           } else {
+            console.log('1-2')
             height = (offsetWidth * 0.8) * (height / width);
             width = (offsetWidth * 0.8);   //以框的宽度为标准
           }
         } else { // 竖版
+          console.log('2')
           if (Math.abs(degrees) == 90 || Math.abs(degrees) == 270) {
             width = (offsetWidth * 0.8) * (width / height);
             height = (offsetWidth * 0.8);   //以框的宽度为标准
+            console.log('2-1')
           } else {
+            console.log('2-2')
             width = (offsetHeight * 0.8) * (width / height);
             height = offsetHeight * 0.8;   //以框的高度为标准
           }
@@ -483,16 +535,18 @@ export default {
     countCircleCenter(stagePoint, layerPoint) {
       let { Xscale, Yscale } = this.group
 
-      let cacheX = this.circlePosition.x = stagePoint.x - layerPoint.x
-      let cacheY = this.circlePosition.y = stagePoint.y - layerPoint.y
+      //   let cacheX = this.circlePosition.x = stagePoint.x - layerPoint.x
+      //   let cacheY = this.circlePosition.y = stagePoint.y - layerPoint.y
+      let cacheX = stagePoint.x - layerPoint.x
+      let cacheY = stagePoint.y - layerPoint.y
 
       let rotation = this.stage.obj.rotation() % 360;
 
       if (rotation) {
 
         if (rotation % 180 === 0) {
-          this.circlePosition.y = -cacheY;
-          this.circlePosition.x = -cacheX;
+          this.circlePosition.x = -cacheX / Xscale;
+          this.circlePosition.y = -cacheY / Yscale;
         } else if (rotation % 270 === 0) {
           if (rotation > 0) {
             this.circlePosition.x = -cacheY / Xscale;
@@ -512,6 +566,12 @@ export default {
           this.circlePosition.y = cacheX / Yscale;
         }
       }
+      else {
+        this.circlePosition.x = cacheX / Xscale
+        this.circlePosition.y = cacheY / Yscale;
+      }
+      //   this.circlePosition.x = this.circlePosition.x 
+      //   this.circlePosition.y = this.circlePosition.y 
     }
   },
 };
