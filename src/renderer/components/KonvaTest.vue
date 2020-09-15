@@ -38,39 +38,45 @@
 </template>
 
 <script>
+const DEFAULT_SET = {
+  stage: {
+    obj: null,
+    width: 0,
+    height: 0,
+    scale: 1,
+  },
+  layer: {
+    obj: null,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+  },
+  group: {
+    obj: null,
+    width: 0,
+    height: 0,
+    Xscale: 1,
+    Yscale: 1,
+  },
+  image: {
+    obj: null,
+    element: null,
+    width: 0,
+    height: 0,
+  },
+}
 import Konva from "Konva";
+import { cloneOf } from "../utils/methods";
 export default {
   name: "konva-test",
   data() {
     return {
-      stage: {
-        obj: null,
-        width: 0,
-        height: 0,
-        scale: 1,
-      },
-      layer: {
-        obj: null,
-        width: 0,
-        height: 0,
-        x: 0,
-        y: 0,
-      },
-      group: {
-        obj: null,
-        width: 0,
-        height: 0,
-        Xscale: 1,
-        Yscale: 1,
-      },
-      image: {
-        obj: null,
-        element: null,
-        width: 0,
-        height: 0,
-      },
+      stage: {},
+      layer: {},
+      group: {},
+      image: {},
       degrees: 0, // 旋转角度累计
-
       circleId: '', // 圆id
       clickCircle: false,
       doDrawing: false,
@@ -94,6 +100,13 @@ export default {
     this.initEvent()
   },
   methods: {
+    // 初始化目标参数
+    resetObejct() {
+      this.stage = cloneOf(DEFAULT_SET.stage)
+      this.layer = cloneOf(DEFAULT_SET.layer)
+      this.group = cloneOf(DEFAULT_SET.group)
+      this.image = cloneOf(DEFAULT_SET.image)
+    },
     // 初始化监听事件
     initEvent() {
       this.menuNode = document.getElementById('menu')
@@ -226,6 +239,7 @@ export default {
     },
 
     async start(file) {
+      this.resetObejct()
       await this.mapToLoadElement(file)
       this.mapToMakeStage()
       this.mapToMakeLayer()
@@ -528,7 +542,7 @@ export default {
       layer.y(y)
 
     },
-    
+
     // 重绘
     resizeDraw() {
       this.setParameters()
