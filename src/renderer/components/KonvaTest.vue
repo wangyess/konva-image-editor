@@ -127,6 +127,7 @@ export default {
       stage.height(offsetHeight)
       stage.scaleX(1)
       stage.scaleY(1)
+      this.scale = 1
 
       stage.offsetX(offsetWidth / 2)
       stage.offsetY(offsetHeight / 2)
@@ -394,24 +395,18 @@ export default {
 
         // if (offsetWidth / offsetHeight <= width / height) { // 横版
         if (1 <= width / height) { // 横版
-          console.log('1')
           if (Math.abs(degrees) == 90 || Math.abs(degrees) == 270) {
-            console.log('1-1')
             height = (offsetHeight * 0.8) * (height / width);
             width = offsetHeight * 0.8;   //以框的高度为标准
           } else {
-            console.log('1-2')
             height = (offsetWidth * 0.8) * (height / width);
             width = (offsetWidth * 0.8);   //以框的宽度为标准
           }
         } else { // 竖版
-          console.log('2')
           if (Math.abs(degrees) == 90 || Math.abs(degrees) == 270) {
             width = (offsetWidth * 0.8) * (width / height);
             height = (offsetWidth * 0.8);   //以框的宽度为标准
-            console.log('2-1')
           } else {
-            console.log('2-2')
             width = (offsetHeight * 0.8) * (width / height);
             height = offsetHeight * 0.8;   //以框的高度为标准
           }
@@ -534,16 +529,12 @@ export default {
     // 计算圆心位置
     countCircleCenter(stagePoint, layerPoint) {
       let { Xscale, Yscale } = this.group
-
-      //   let cacheX = this.circlePosition.x = stagePoint.x - layerPoint.x
-      //   let cacheY = this.circlePosition.y = stagePoint.y - layerPoint.y
       let cacheX = stagePoint.x - layerPoint.x
       let cacheY = stagePoint.y - layerPoint.y
 
       let rotation = this.stage.obj.rotation() % 360;
 
       if (rotation) {
-
         if (rotation % 180 === 0) {
           this.circlePosition.x = -cacheX / Xscale;
           this.circlePosition.y = -cacheY / Yscale;
@@ -570,8 +561,6 @@ export default {
         this.circlePosition.x = cacheX / Xscale
         this.circlePosition.y = cacheY / Yscale;
       }
-      //   this.circlePosition.x = this.circlePosition.x 
-      //   this.circlePosition.y = this.circlePosition.y 
     }
   },
 };
