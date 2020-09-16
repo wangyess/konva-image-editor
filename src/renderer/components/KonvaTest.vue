@@ -90,15 +90,7 @@ export default {
   },
   methods: {
       handleTes1t(){ 
-        //   let image = this.image.obj
-        //   let stage = this.stage.obj
-        //   let layer = this.layer.obj
-        //   let group = this.group.obj
-        //   console.log(image.absolutePosition()) 
-        //   console.log(image.getAbsoluteTransform()) 
-        //   console.log(stage.absolutePosition()) 
-        //   console.log(layer.absolutePosition()) 
-        //   console.log(group.absolutePosition()) 
+
       },
     // 初始化目标参数
     resetObejct() {
@@ -106,6 +98,7 @@ export default {
       this.layer = cloneOf(DEFAULT_SET.layer)
       this.group = cloneOf(DEFAULT_SET.group)
       this.image = cloneOf(DEFAULT_SET.image)
+      this.degrees = 0
     },
     // 初始化监听事件
     initEvent() {
@@ -289,6 +282,7 @@ export default {
     },
 
     async start(file) {
+      debugger
       this.resetObejct()
       await this.mapToLoadElement(file)
       this.mapToMakeStage()
