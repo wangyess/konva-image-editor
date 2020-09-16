@@ -123,8 +123,6 @@ export default {
         let { obj: group, Xscale, Yscale, width, height } = this.group
         let { x, y } = group.absolutePosition()
         let rotation = this.degrees
-
-        debugger
         
         let lx = x
         let ly = y
@@ -154,21 +152,16 @@ export default {
 
         }
 
-        console.log(lx, ly, lw, lh)
-
         return {
             lx,
             ly,
             lw,
             lh
         }
-
-
-
     },
     // 保存图片
     handleTest() {
-    //   this.resizeDraw()
+      this.resizeDraw()
       let { obj: stage, scale } = this.stage
       var {lx, ly, lw, lh} = this.calculateImagePosition()
 
