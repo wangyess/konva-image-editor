@@ -89,9 +89,9 @@ export default {
     this.initEvent()
   },
   methods: {
-      handleTes1t(){ 
+    handleTes1t(){ 
 
-      },
+    },
     // 初始化目标参数
     resetObejct() {
       this.stage = cloneOf(DEFAULT_SET.stage)
@@ -154,19 +154,19 @@ export default {
     },
     // 保存图片
     handleSaveImage() {
-      this.resizeDraw()
-      let { obj: stage, scale } = this.stage
-      var {lx, ly, lw, lh} = this.calculateImagePosition()
+        this.resizeDraw()
+        let { obj: stage, scale } = this.stage
+        var {lx, ly, lw, lh} = this.calculateImagePosition()
 
-      let content = stage.toDataURL({ 
-          mimeType: "image/jpeg",
-          x: lx,
-          y: ly,
-          width: lw,
-          height: lh,
-          quality: 1, 
-          pixelRatio: 3
-      });
+        let content = stage.toDataURL({ 
+            mimeType: "image/jpeg",
+            x: lx,
+            y: ly,
+            width: lw,
+            height: lh,
+            quality: 1, 
+            pixelRatio: 3
+        });
 
       let fileName = '框框'
 
