@@ -90,15 +90,15 @@ export default {
   },
   methods: {
       handleTes1t(){ 
-          let image = this.image.obj
-          let stage = this.stage.obj
-          let layer = this.layer.obj
-          let group = this.group.obj
-          console.log(image.absolutePosition()) 
-          console.log(image.getAbsoluteTransform()) 
-          console.log(stage.absolutePosition()) 
-          console.log(layer.absolutePosition()) 
-          console.log(group.absolutePosition()) 
+        //   let image = this.image.obj
+        //   let stage = this.stage.obj
+        //   let layer = this.layer.obj
+        //   let group = this.group.obj
+        //   console.log(image.absolutePosition()) 
+        //   console.log(image.getAbsoluteTransform()) 
+        //   console.log(stage.absolutePosition()) 
+        //   console.log(layer.absolutePosition()) 
+        //   console.log(group.absolutePosition()) 
       },
     // 初始化目标参数
     resetObejct() {
@@ -595,6 +595,7 @@ export default {
 
     // 重绘
     resizeDraw() {
+      if(!this.stage.obj) return
       this.setParameters()
       this.stage.obj.draw()
     },
