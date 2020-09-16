@@ -1,29 +1,18 @@
 <template>
   <div>
     <div
-      class="container"
-      ref="container"
-    >
+      class="container" ref="container">
       <div class="tools">
-        <input
-          type="file"
-          @change="handleLoadImage"
-        />
+        <input type="file" @change="handleLoadImage"/>
         <button @click="handleRotate(90)"><i class="el-icon-refresh-right"></i></button>
         <button @click="handleRotate(-90)"><i class="el-icon-refresh-left"></i></button>
         <button @click="handleCircle">圆形</button>
+        <button @click="handleTes1t">test</button>
         <button @click="handleTest">save</button>
       </div>
-      <div
-        class="content"
-        ref="content"
-      >
-        <div
-          id="stage"
-          ref="editArea"
-        ></div>
+      <div class="content" ref="content" >
+        <div id="stage" ref="editArea"></div>
       </div>
-
     </div>
     <div
       id="menu"
@@ -100,6 +89,17 @@ export default {
     this.initEvent()
   },
   methods: {
+      handleTes1t(){ 
+          let image = this.image.obj
+          let stage = this.stage.obj
+          let layer = this.layer.obj
+          let group = this.group.obj
+          console.log(image.absolutePosition()) 
+          console.log(image.getAbsoluteTransform()) 
+          console.log(stage.absolutePosition()) 
+          console.log(layer.absolutePosition()) 
+          console.log(group.absolutePosition()) 
+      },
     // 初始化目标参数
     resetObejct() {
       this.stage = cloneOf(DEFAULT_SET.stage)
@@ -117,15 +117,72 @@ export default {
       // 监听页面尺寸变化 
       window.addEventListener('resize', this.resize);
     },
+    // 计算图片位置
+    calculateImagePosition(){
+        let { obj: stage, scale } = this.stage
+        let { obj: group, Xscale, Yscale, width, height } = this.group
+        let { x, y } = group.absolutePosition()
+        let rotation = this.degrees
+
+        debugger
+        
+        let lx = x
+        let ly = y
+        
+        let lw = width = width * Xscale * scale
+        let lh = height = height * Xscale * scale
+
+        if(rotation) {
+             if(rotation === 180 || rotation === -180) {
+                lx = x - width
+                ly = y - height
+                lw = width
+                lh = height
+
+            }else if(rotation === 270 || rotation === -90) {
+                lx = x
+                ly = y - width
+                lw = height
+                lh = width
+
+            }else if(rotation === 90 || rotation === -270) {
+                lx = x - height
+                ly = y
+                lw = height
+                lh = width
+            }
+
+        }
+
+        console.log(lx, ly, lw, lh)
+
+        return {
+            lx,
+            ly,
+            lw,
+            lh
+        }
+
+
+
+    },
     // 保存图片
     handleTest() {
-      let stage = this.stage.obj
-      let layer = this.layer.obj
-      let group = this.group.obj
-      let content = group.toDataURL({ mimeType: "image/jpeg", quality: 1, pixelRatio: 2 });
+    //   this.resizeDraw()
+      let { obj: stage, scale } = this.stage
+      var {lx, ly, lw, lh} = this.calculateImagePosition()
+
+      let content = stage.toDataURL({ 
+          mimeType: "image/jpeg",
+          x: lx,
+          y: ly,
+          width: lw,
+          height: lh,
+          quality: 1, 
+          pixelRatio: 3
+      });
+
       let fileName = '框框'
-
-
 
       //   var base64ToBlob = function (code) {
       //     let parts = code.split(';base64,');
