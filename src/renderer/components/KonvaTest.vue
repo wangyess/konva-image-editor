@@ -8,7 +8,7 @@
         <button @click="handleRotate(-90)"><i class="el-icon-refresh-left"></i></button>
         <button @click="handleCircle">圆形</button>
         <button @click="handleTes1t">test</button>
-        <button @click="handleTest">save</button>
+        <button @click="handleSaveImage">save</button>
       </div>
       <div class="content" ref="content" >
         <div id="stage" ref="editArea"></div>
@@ -153,7 +153,7 @@ export default {
         }
     },
     // 保存图片
-    handleTest() {
+    handleSaveImage() {
       this.resizeDraw()
       let { obj: stage, scale } = this.stage
       var {lx, ly, lw, lh} = this.calculateImagePosition()
@@ -282,7 +282,6 @@ export default {
     },
 
     async start(file) {
-      debugger
       this.resetObejct()
       await this.mapToLoadElement(file)
       this.mapToMakeStage()
