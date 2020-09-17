@@ -157,6 +157,7 @@ export default {
         this.resizeDraw()
         let { obj: stage, scale } = this.stage
         var {lx, ly, lw, lh} = this.calculateImagePosition()
+        console.log(lx, ly, lw, lh)
 
         let content = stage.toDataURL({ 
             mimeType: "image/jpeg",
@@ -168,39 +169,29 @@ export default {
             pixelRatio: 3
         });
 
-      let fileName = '框框'
+        let fileName = '框框'
 
-      //   var base64ToBlob = function (code) {
-      //     let parts = code.split(';base64,');
-      //     let contentType = parts[0].split(':')[1];
-      //     let raw = window.atob(parts[1]);
-      //     let rawLength = raw.length;
-      //     let uInt8Array = new Uint8Array(rawLength);
-      //     for (let i = 0; i < rawLength; ++i) {
-      //       uInt8Array[i] = raw.charCodeAt(i);
-      //     }
-      //     return new Blob([uInt8Array], {
-      //       type: contentType
-      //     });
-      //   };
+        var base64ToBlob = function (code) {
+          let parts = code.split(';base64,');
+          let contentType = parts[0].split(':')[1];
+          let raw = window.atob(parts[1]);
+          let rawLength = raw.length;
+          let uInt8Array = new Uint8Array(rawLength);
+          for (let i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+          }
+          return new Blob([uInt8Array], {
+            type: contentType
+          });
+        };
 
-      //   let aLink = document.createElement('a');
-      //   let blob = base64ToBlob(content); //new Blob([content]);
-      //   let evt = document.createEvent("HTMLEvents");
-      //   evt.initEvent("click", true, true); //initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为
-      //   aLink.download = fileName;
-      //   aLink.href = URL.createObjectURL(blob);
-      //   aLink.click()
-
-
-      let link = document.createElement('a');
-      link.download = fileName;
-      link.href = content;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      //   delete link;
-
+        let aLink = document.createElement('a');
+        let blob = base64ToBlob(content); //new Blob([content]);
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("click", true, true); //initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为
+        aLink.download = fileName;
+        aLink.href = URL.createObjectURL(blob);
+        aLink.click()
     },
     // 选择图片
     handleLoadImage(e) {
@@ -230,7 +221,9 @@ export default {
     // 实例层
     mapToMakeLayer() {
       let { obj: stage } = this.stage
-      let layer = new Konva.Layer({ draggable: true })
+      let layer = new Konva.Layer({ 
+          draggable: true,
+      })
       stage.add(layer)
       this.layer.obj = layer
     },
