@@ -450,7 +450,7 @@ export default {
       let event = evt.evt;
       let scale = stage.scaleX();
       scale += event.deltaY * -0.01;
-      scale = Math.min(Math.max(.8, scale), 3);
+      scale = Math.min(Math.max(.8, scale), 8);
       this.mapToShapeScale(stage, scale);
 
       layer.x(x)
