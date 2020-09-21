@@ -56,7 +56,7 @@ const DEFAULT_SET = {
   },
 }
 import Konva from "Konva";
-import { cloneOf } from "../utils/methods";
+import { cloneOf, setScope } from "../utils/methods";
 export default {
   name: "konva-test",
   data() {
@@ -90,6 +90,8 @@ export default {
   },
   methods: {
     handleTes1t(){ 
+        let group = this.group.obj
+        console.log(group.absolutePosition())
 
     },
     // 初始化目标参数
@@ -196,6 +198,7 @@ export default {
     // 选择图片
     handleLoadImage(e) {
       var url = URL.createObjectURL(e.target.files[0]);
+      console.log("url", url)
       this.start(url);
     },
     // 实例舞台
@@ -223,6 +226,20 @@ export default {
       let { obj: stage } = this.stage
       let layer = new Konva.Layer({ 
           draggable: true,
+          dragBoundFunc: (pot) => {
+              let offset = this.$refs.content
+              let image = this.group
+              let scale = this.stage.scale
+              let {Xscale, Yscale} = this.group
+              let { x, y } = setScope(offset, image, scale, Xscale, Yscale, pot)
+              console.log("pot", pot )
+              console.log(x, y )
+
+              return {
+                  x,
+                  y
+              }
+          }
       })
       stage.add(layer)
       this.layer.obj = layer
@@ -231,6 +248,8 @@ export default {
     mapToMakeGroup() {
       let { obj: layer } = this.layer
       let size = this.resetImageSize()
+
+      console.log('size', size)
 
       let group = new Konva.Group({
         width: size.width,
