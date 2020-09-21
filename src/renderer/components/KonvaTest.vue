@@ -56,7 +56,7 @@ const DEFAULT_SET = {
   },
 }
 import Konva from "Konva";
-import { cloneOf, setScope } from "../utils/methods";
+import { cloneOf, setScope, calculateLeftTopPosition } from "../utils/methods";
 export default {
   name: "konva-test",
   data() {
@@ -118,40 +118,14 @@ export default {
         let { obj: group, Xscale, Yscale, width, height } = this.group
         let { x, y } = group.absolutePosition()
         let rotation = this.degrees
-        
-        let lx = x
-        let ly = y
-        
-        let lw = width = width * Xscale * scale
-        let lh = height = height * Xscale * scale
 
-        if(rotation) {
-             if(rotation === 180 || rotation === -180) {
-                lx = x - width
-                ly = y - height
-                lw = width
-                lh = height
-
-            }else if(rotation === 270 || rotation === -90) {
-                lx = x
-                ly = y - width
-                lw = height
-                lh = width
-
-            }else if(rotation === 90 || rotation === -270) {
-                lx = x - height
-                ly = y
-                lw = height
-                lh = width
-            }
-
-        }
+        let params = calculateLeftTopPosition(width, height, scale, Xscale, Yscale, rotation, x, y)
 
         return {
-            lx,
-            ly,
-            lw,
-            lh
+            lx: params.lx,
+            ly: params.ly,
+            lw: params.lw,
+            lh: params.lh
         }
     },
     // 保存图片
@@ -228,12 +202,10 @@ export default {
           draggable: true,
           dragBoundFunc: (pot) => {
               let offset = this.$refs.content
-              let image = this.group
+              let group = this.group
               let scale = this.stage.scale
-              let {Xscale, Yscale} = this.group
-              let { x, y } = setScope(offset, image, scale, Xscale, Yscale, pot)
-              console.log("pot", pot )
-              console.log(x, y )
+              let rotation = this.degrees
+              let { x, y } = setScope(offset, group, scale, pot, rotation)
 
               return {
                   x,
