@@ -94,7 +94,6 @@ export default {
     handleTes1t(){ 
         let group = this.group.obj
         console.log(group.absolutePosition())
-
     },
     // 初始化目标参数
     resetObejct() {
@@ -135,7 +134,6 @@ export default {
         this.resizeDraw()
         let { obj: stage, scale } = this.stage
         var {lx, ly, lw, lh} = this.calculateImagePosition()
-        console.log(lx, ly, lw, lh)
 
         let content = stage.toDataURL({ 
             mimeType: "image/jpeg",
@@ -546,7 +544,7 @@ export default {
     handleCirclePosition(e) {
         console.log(e.target.absolutePosition())
     },
-    // 圆的位置
+    // 圆在图片中的位置
     cirleRotatePosition(Xscale, Yscale) {
         console.log(this.group.obj.children)
         let arr = this.group.obj.children
@@ -554,7 +552,7 @@ export default {
             if(item.attrs.id && item.attrs.id.indexOf('circle') > -1) {
 
                 this.circleArr.map((i, n) => {
-                    if(item.attrs.id === i.attrs.id) {
+                    if(item.attrs.id === i.id) {
                         let circleX = i.x * Xscale
                         let circleY = i.y * Yscale
 
@@ -584,7 +582,7 @@ export default {
       let { offsetWidth, offsetHeight } = this.$refs.content
       let { Xscale, Yscale, width, height, x, y } = this.resetImageSize(this.degrees)
 
-      // 计算圆的位置
+      // 计算圆在图片中的位置
       this.cirleRotatePosition(Xscale, Yscale)
     //   debugger
       this.stage.width = offsetWidth
